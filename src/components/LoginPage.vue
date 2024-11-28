@@ -1,126 +1,141 @@
 <script setup>
-import { reactive } from 'vue';
-import router from '../Router';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router'; 
 
-const formData = reactive({
-  email: '',
-  password: '',
-});
+const email = ref('');
+const password = ref('');
+const userDataList = ref([]); 
+const errorMessage = ref('');
 
-const handleLogin = () => {
-  // Check if all fields are filled
-  if (!formData.email || !formData.password) {
-    alert('Please fill in all fields.');
-    return;
+
+const router = useRouter(); 
+
+const loadUserData = () => {
+  const storedData = localStorage.getItem('userDataList'); 
+  if (storedData) {
+    userDataList.value = JSON.parse(storedData);
   }
-  
-  // Proceed with login logic
-  console.log('Login details:', formData);
-  alert('Login successful!');
 };
 
-const handleSignup = () => {
-  console.log('Navigating to signup...');
-  alert('Redirecting to Signup...');
-  router.push('/signup'); // Navigate to signup page
+
+loadUserData();
+
+// Handle user login
+const handleLogin = () => {
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Please fill in all fields.';
+    return;
+  }
+
+  const user = userDataList.value.find(
+    (user) => user.username === email.value && user.password === password.value
+  );
+
+  if (user) {
+    errorMessage.value = '';
+    router.push('/dashboard');  
+  } else {
+    errorMessage.value = 'Invalid email or password.'; 
+  }
+};
+
+const goToSignup = () => {
+  router.push('/signup');
 };
 </script>
 <template>
-  <div class="login">
+  <div>
     <h1>Login</h1>
-    <form @submit.prevent="handleLogin" class="form">
-      <!-- Username (Email) Field -->
+    <form @submit.prevent="handleLogin">
+      
       <div class="form-group">
         <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          v-model="formData.email"
-          placeholder="Enter your email"
-          required
-        />
+        <input type="email" id="email" v-model="email" placeholder="Enter your email" />
       </div>
 
-      <!-- Password Field -->
+  
       <div class="form-group">
         <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          v-model="formData.password"
-          placeholder="Enter your password"
-          required
-        />
+        <input type="password" id="password" v-model="password" placeholder="Enter your password" />
       </div>
 
-      <!-- Buttons -->
-      <div class="buttons">
-        <button type="submit" class="btn login-btn">Login</button>
-        <button type="button" class="btn signup-btn" @click="handleSignup">Signup</button>
+      
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      
+      <div class="button-group">
+        <button type="submit">Login</button>
+        <button type="button" class="signup-button" @click="goToSignup">Sign Up</button>
       </div>
     </form>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.login {
+<style scoped>
+div {
   max-width: 400px;
   margin: 50px auto;
-  padding: 50px 40px;
-  border: 1px solid #ddd;
+  padding: 1px 70px;
   border-radius: 8px;
-  background: #f9f9f9;
+  background: #92adac;
+}
 
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-  .form-group {
-    margin-bottom: 15px;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-  }
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 
-  .buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+.error-message {
+  color: red;
+  margin-top: 10px;
+  text-align: center;
+}
 
-    .btn {
-      flex: 1;
-      padding: 10px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
 
-      &:hover {
-        background-color: #45a049;
-      }
-    }
+button {
+  flex: 1;
+  padding: 10px ;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
-    .signup-btn {
-      background-color: #007bff;
+button:hover {
+  background-color: #45a049;
+}
 
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-  }
+.signup-button {
+  background-color: #007bff;
+}
+
+.signup-button:hover {
+  background-color: #0056b3;
 }
 </style>
