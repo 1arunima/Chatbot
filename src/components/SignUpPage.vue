@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const name = ref('');
@@ -16,8 +16,13 @@ const loadUserData = () => {
     userDataList.value = JSON.parse(storedData);
   }
 };
+onMounted(()=>{
+  loadUserData()
+})
 
-loadUserData();
+
+console.log(loadUserData);
+
 
 const handleSignup = () => {
 
@@ -57,7 +62,7 @@ const handleSignup = () => {
   errorMessage.value = '';
 
   alert('User registered successfully!');
-  router.push('/dashboard'); 
+  router.push('/'); 
 };
 
 const handleLoginRedirect = () => {

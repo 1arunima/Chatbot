@@ -33,7 +33,7 @@ const handleLogin = () => {
 
   if (user) {
     errorMessage.value = '';
-    router.push('/dashboard');  
+    router.push('/chat');  
   } else {
     errorMessage.value = 'Invalid email or password.'; 
   }
