@@ -2,41 +2,43 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+// Data bindings
 const name = ref('');
 const username = ref('');
 const password = ref('');
 const userDataList = ref([]);
 const errorMessage = ref('');
-const router = useRouter();
 const isUserExists = ref(false); 
+const router = useRouter();
 
+// Load user data from localStorage
 const loadUserData = () => {
   const storedData = localStorage.getItem('userDataList');
   if (storedData) {
     userDataList.value = JSON.parse(storedData);
   }
 };
-onMounted(()=>{
-  loadUserData()
-})
 
 
-console.log(loadUserData);
+const generateUniqueId = () => {
+  return Date.now(); 
+};
 
+// Lifecycle hook
+onMounted(() => {
+  loadUserData();
+});
 
 const handleSignup = () => {
-
+  // Validate inputs
   if (!name.value || !username.value || !password.value) {
     errorMessage.value = 'Please fill in all fields.';
     return;
   }
 
-
   const normalizedUsername = username.value.trim().toLowerCase();
-
   const isUsernameTaken = userDataList.value.some(
     (user) => user.username.toLowerCase() === normalizedUsername
-    
   );
 
   if (isUsernameTaken) {
@@ -47,6 +49,7 @@ const handleSignup = () => {
 
   // Create new user data
   const newUserData = {
+    id: generateUniqueId(),
     name: name.value.trim(),
     username: normalizedUsername,
     password: password.value.trim(),
@@ -55,7 +58,7 @@ const handleSignup = () => {
   userDataList.value.push(newUserData);
   localStorage.setItem('userDataList', JSON.stringify(userDataList.value));
 
-
+  // Clear input fields and error messages
   name.value = '';
   username.value = '';
   password.value = '';
@@ -65,11 +68,11 @@ const handleSignup = () => {
   router.push('/'); 
 };
 
+// Redirect to login page
 const handleLoginRedirect = () => {
-  router.push('/')  ; 
+  router.push('/'); 
 };
 </script>
-
 <template>
   <div class="signup-container">
     <h1>Sign Up</h1>
