@@ -80,15 +80,26 @@ const filteredUsers = computed(() => {
   return users.value.filter((user) => user.id !== loggedInUser.value.id);
 });
 
+const clearChat = () => {
+  chatHistory.value = chatHistory.value.filter(
+    (msg) => msg.code !== `${loggedInUser.value.id}-${selectedUser.value.id}` && msg.code !== `${selectedUser.value.id}-${loggedInUser.value.id}`
+  );
+  console.log(clearChat);
+  console.log(msg.code);
+  
+  localStorage.setItem("chatHistory", JSON.stringify(chatHistory.value));
+  selectedUser.value={}
+}
+
 // Logout the user
 const logout = () => {
   loggedInUser.value = {};
+  localStorage.removeItem("loggedInUser")
   router.push({ name: "login" });
 };
 
 onMounted(() => {
   loadUsers();
-
   loadChatHistory();
 });
 </script>
@@ -111,6 +122,7 @@ onMounted(() => {
     </div>
     <div class="chat-window" v-if="selectedUser.id">
       <h3>Chat with {{ selectedUser.name }}</h3>
+      <button class="clear-chat-btn" @click="clearChat">Clear Chat</button> 
       <div class="chat-messages">
         <div
           v-for="(message, index) in getChatMessages()"
@@ -142,6 +154,23 @@ onMounted(() => {
 </template>
 
 <style scoped>
+
+.clear-chat-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  margin-left: auto;
+  width: 65px;
+  height: 48px;
+}
+
+.clear-chat-btn:hover {
+  background-color: #ff1a1a;
+}
 .chat-window h3 {
   margin-bottom: 10px;
   margin-top: -34px;

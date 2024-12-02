@@ -42,7 +42,7 @@ const handleLogin = () => {
 };
 
 // Redirect to the signup page
-const goToSignup = () => {
+const goToSignup = () => { 
   router.push('/signup');
 };
 </script>

@@ -7,19 +7,29 @@ const routes =[
     {
         path :"/",
         name : "login",
-        component : LoginPage
+        component : LoginPage,
+        meta:{
+            guestOnly:true
+        }
+
 
     },
     {
         path :"/signup",
         name : "signup",
-        component : SignUpPage
+        component : SignUpPage,
+        meta:{
+            guestOnly:true
+        }
 
     },
     {
         path :"/chat",
         name : "chat",
-        component : Chat
+        component : Chat,
+        meta:{
+            requiresAuth:true
+        }
 
     }
 
@@ -31,4 +41,26 @@ const router = createRouter({
     routes
 })
 
+
+router.beforeEach((to, from, next) => {
+   
+    const isAuthenticated = !!localStorage.getItem("loggedInUser"); 
+    console.log( !!localStorage.getItem("loggedInUser"));
+
+    if (to.meta.guestOnly && isAuthenticated) {
+      next({ name: "chat" }); 
+    } 
+   
+    else if (to.meta.requiresAuth && !isAuthenticated) {
+      next({ name: "login" });
+    } 
+    
+    else {
+      next(); 
+    }
+  });
+  
+
 export default router
+
+
