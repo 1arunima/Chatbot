@@ -44,7 +44,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
    
-    const isAuthenticated = !!localStorage.getItem("loggedInUser"); 
+    const isAuthenticated = localStorage.getItem("loggedInUser"); 
     console.log( !!localStorage.getItem("loggedInUser"));
 
     if (to.meta.guestOnly && isAuthenticated) {

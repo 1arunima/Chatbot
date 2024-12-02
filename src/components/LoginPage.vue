@@ -34,14 +34,14 @@ const handleLogin = () => {
 
   if (user) {
     errorMessage.value = '';
-    localStorage.setItem('loggedInUser', JSON.stringify(user)); // Store logged-in user
-    router.push('/chat'); // Navigate to chat page
+    localStorage.setItem('loggedInUser', JSON.stringify(user));
+    router.push('/chat');
   } else {
     errorMessage.value = 'Invalid email or password.';
   }
 };
 
-// Redirect to the signup page
+
 const goToSignup = () => { 
   router.push('/signup');
 };

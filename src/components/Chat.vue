@@ -9,6 +9,7 @@ const selectedUser = ref({});
 const newMessage = ref("");
 const chatHistory = ref([]);
 
+
 const loadUsers = () => {
   const storedUsers = localStorage.getItem("userDataList");
   if (storedUsers) {
@@ -21,28 +22,19 @@ const loadUsers = () => {
   }
 };
 
-// Load chat history from localStorage
+
 const loadChatHistory = () => {
   const storedChatHistory = localStorage.getItem("chatHistory");
-  if (storedChatHistory) {
-    chatHistory.value = JSON.parse(storedChatHistory);
-  }
+  chatHistory.value = storedChatHistory ? JSON.parse(storedChatHistory) : [];
 };
 
-// Select a user to chat with
 const selectUser = (user) => {
   selectedUser.value = user;
-  console.log("selecteduser", selectedUser.value);
 };
 
 // Send a message
 const sendMessage = () => {
   if (newMessage.value.trim()) {
-    if (!loggedInUser.value.id || !selectedUser.value.id) {
-      console.error("Logged-in user or selected user is missing.");
-      return;
-    }
-
     const message = {
       code: `${loggedInUser.value.id}-${selectedUser.value.id}`,
       from: loggedInUser.value.id,
@@ -50,13 +42,10 @@ const sendMessage = () => {
       message: newMessage.value.trim(),
       time: new Date().toLocaleString(),
     };
-    console.log(loggedInUser.value);
-    console.log(newMessage.value);
-    console.log(message);
 
     chatHistory.value.push(message);
 
-    // Save to localStorage
+   
     localStorage.setItem("chatHistory", JSON.stringify(chatHistory.value));
 
     newMessage.value = "";
@@ -68,33 +57,32 @@ const sendMessage = () => {
 const getChatMessages = () => {
   const chatCode1 = `${loggedInUser.value.id}-${selectedUser.value.id}`;
   const chatCode2 = `${selectedUser.value.id}-${loggedInUser.value.id}`;
-
-  console.log("hyy", chatCode1);
-  console.log("hlo", chatCode2);
-
   return chatHistory.value.filter(
     (msg) => msg.code === chatCode1 || msg.code === chatCode2
   );
 };
+
+
+const clearChat = () => {
+  const chatCode1 = `${loggedInUser.value.id}-${selectedUser.value.id}`;
+  const updatedChatHistory = chatHistory.value.filter((msg) => msg.code !== chatCode1);
+
+ 
+  localStorage.setItem(`chatHistory-${loggedInUser.value.id}`, JSON.stringify(updatedChatHistory));
+  console.log(loggedInUser.value);
+  
+  chatHistory.value = updatedChatHistory;
+  selectedUser.value = {};
+};
+
 const filteredUsers = computed(() => {
   return users.value.filter((user) => user.id !== loggedInUser.value.id);
 });
 
-const clearChat = () => {
-  chatHistory.value = chatHistory.value.filter(
-    (msg) => msg.code !== `${loggedInUser.value.id}-${selectedUser.value.id}` && msg.code !== `${selectedUser.value.id}-${loggedInUser.value.id}`
-  );
-  console.log(clearChat);
-  console.log(msg.code);
-  
-  localStorage.setItem("chatHistory", JSON.stringify(chatHistory.value));
-  selectedUser.value={}
-}
 
-// Logout the user
 const logout = () => {
   loggedInUser.value = {};
-  localStorage.removeItem("loggedInUser")
+  localStorage.removeItem("loggedInUser");
   router.push({ name: "login" });
 };
 
@@ -121,8 +109,8 @@ onMounted(() => {
       </ul>
     </div>
     <div class="chat-window" v-if="selectedUser.id">
-      <h3>Chat with {{ selectedUser.name }}</h3>
-      <button class="clear-chat-btn" @click="clearChat">Clear Chat</button> 
+      <h3>Chat with {{ selectedUser.name }}  <button class="clear-chat-btn" @click="clearChat">Clear Chat</button></h3>
+     
       <div class="chat-messages">
         <div
           v-for="(message, index) in getChatMessages()"
@@ -154,37 +142,13 @@ onMounted(() => {
 </template>
 
 <style scoped>
-
-.clear-chat-btn {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 10px;
-  margin-left: auto;
-  width: 65px;
-  height: 48px;
-}
-
-.clear-chat-btn:hover {
-  background-color: #ff1a1a;
-}
-.chat-window h3 {
-  margin-bottom: 10px;
-  margin-top: -34px;
-  font-size: 1.5em;
-  font-weight: bold;
-  text-align: center;
-}
 .chat-app {
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
-  position: relative;
-  height: 600px;
+  width : 900px;
 }
+
 .logout-btn {
   position: fixed;
   top: 10px;
@@ -195,7 +159,10 @@ onMounted(() => {
   padding: 6px 12px;
   border-radius: 5px;
   cursor: pointer;
-  z-index: 10;
+}
+
+.logout-btn:hover {
+  background-color: #cc0000;
 }
 
 .sidebar {
@@ -233,16 +200,13 @@ onMounted(() => {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  width: 700px;
-  padding-bottom: 20px;
 }
 
 .message {
   padding: 10px;
   margin-bottom: 10px;
-  width: 100px;
   border-radius: 10px;
-  max-width: 80%;
+  max-width: 70%;
   word-wrap: break-word;
 }
 
@@ -250,21 +214,20 @@ onMounted(() => {
   background: #007bff;
   color: white;
   align-self: flex-end;
-  border-radius: 10px 10px 0 10px;
-  max-width: 80%;
   margin-left: auto;
+  width: 108px;
+
 }
+
 .message.received {
   background: #e4e6eb;
   color: black;
   align-self: flex-start;
-  border-radius: 10px 10px 10px 0;
+ 
 }
 
 .chat-input {
   display: flex;
-  align-items: center;
-  margin-top: 10px; /* Adjust this value to move it further down */
 }
 
 .chat-input input {
@@ -272,7 +235,6 @@ onMounted(() => {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 5px 0 0 5px;
-  margin: 0;
 }
 
 .send-btn {
@@ -282,10 +244,37 @@ onMounted(() => {
   border: none;
   border-radius: 0 5px 5px 0;
   cursor: pointer;
-  font-weight: bold;
 }
 
 .send-btn:hover {
-  background-color: #0056b3; /* Darker shade on hover */
+  background-color: #0056b3;
 }
+
+.no-chat {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+}
+.clear-chat-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.clear-chat-btn:hover {
+  background-color: #cc0000;
+}
+
+h3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 </style>
