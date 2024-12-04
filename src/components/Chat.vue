@@ -3,7 +3,7 @@
   import { useRouter } from "vue-router";
   import messageSection from "./messageSection.vue";
   import Buttonss from "./Buttonss.vue";
-  import { IconSend2 } from "@tabler/icons-vue";
+  import { IconLogout, IconSend2 } from "@tabler/icons-vue";
   const router = useRouter();
   const users = ref([]);
   const loggedInUser = ref({});
@@ -112,7 +112,9 @@
 
   <template>
     <div id="app" class="chat-app">
-      <Buttonss  class="logout-btn" label="logout" @click="logout"   />
+      <Buttonss  class="logout-btn" label="logout" @click="logout"   >
+        <IconLogout/>
+      </Buttonss>
       <div class="sidebar">
         <h3>Users</h3>
         <ul>
@@ -152,8 +154,9 @@
           />
           <!-- <button class="send-btn" @click="sendMessage">Send</button> -->
         
-            <Buttonss   label="Send Message" color="red" :disable="isSendDisabled"  :onClick="sendMessage"   />
-   <!-- <IconSend2/> -->
+            <Buttonss   label="Send Message" color="red" :disable="isSendDisabled"  :onClick="sendMessage"   >
+              <IconSend2/>
+            </Buttonss>
         
         </div>
       </div> 

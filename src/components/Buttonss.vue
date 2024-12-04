@@ -25,8 +25,9 @@ const props =defineProps({
 </script>
 
 <template>
-    <button :style={color:props.color} :class="class" :disabled="disable" :visible="true">{{ label }}
-      <IconSend2/>
+    <button :style={color:props.color} :class="class" :disabled="disable" :visible="true">
+      {{ label }}
+      <slot></slot>
     </button>
 </template>
 
