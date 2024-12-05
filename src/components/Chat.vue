@@ -4,6 +4,8 @@
   import messageSection from "./messageSection.vue";
   import Buttonss from "./Buttonss.vue";
   import { IconLogout, IconSend2 } from "@tabler/icons-vue";
+
+  
   const router = useRouter();
   const users = ref([]);
   const loggedInUser = ref({});
@@ -110,196 +112,124 @@
   });
   </script>
 
-  <template>
-    <div id="app" class="chat-app">
-      <Buttonss  class="logout-btn" label="logout" @click="logout"   >
-        <IconLogout/>
-      </Buttonss>
-      <div class="sidebar">
-        <h3>Users</h3>
-        <ul>
-          <li
-            v-for="user in filteredUsers"
-            :key="user.id"
-            :class="{ active: selectedUser.id === user.id }"
-            @click="selectUser(user)"
+
+<template>
+  <v-container fluid class="fill-height" style="overflow: hidden;">
+    <v-row no-gutters>
+      <!-- User List -->
+      <v-col
+        cols="12" sm="4" md="3"
+        class="pa-2"
+      >
+        <v-sheet class="pa-10 ma-5 d-flex flex-column justify-space-between " elevation="2" height="95vh">
+          <h3 class="text-h6 mb-3">Users</h3>
+          <v-list dense class="flex-grow-1 overflow-auto">
+            <v-list-item
+              v-for="user in filteredUsers"
+              :key="user.id"
+              :class="{ active: selectedUser.id === user.id }"
+              @click="selectUser(user)"
+            >
+              <v-list-item-title>{{ user.name }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+
+          <v-btn
+            text
+            small
+            color="primary"
+            @click="logout"
           >
-            {{ user.name }}
-          </li>
-        </ul>
-      </div>
-      <div class="chat-window" v-if="selectedUser.id">
-        <h3>Chat with {{ selectedUser.name }}  
-          <button class="clear-chat-btn" @click="clearChat">Clear Chat</button>
-        </h3>
+            Logout
+          </v-btn>
+        </v-sheet>
+      </v-col>
 
-        <div class="chat-messages">
-          <messageSection
-            v-for="(message, index) in getChatMessages()"
-            :key="index"
-            :messages="message"
-            :loguser="loggedInUser"
-            :isSelected="index === selectedMessageIndex"
-            :index="index"
-            @updateStyle="handleStyleChange"
-          />
-        </div>
+      <!-- Chat Window -->
+      <v-col
+        cols="12" sm="8" md="9"
+        class="pa-2"
+      >
+        <v-sheet class="pa-4 ma-2" elevation="2" height="100vh" display="flex" flex-direction="column">
+          <div class="h-100" v-if="selectedUser.id">
+            <v-row align="center" justify="space-between">
+              <h3 class="text-h5">Chat with {{ selectedUser.name }}</h3>
+              <v-btn text color="error" small @click="clearChat" class="ma-0">
+                Clear Chat
+              </v-btn>
+            </v-row>
 
-        <div class="chat-input">
-          <input
-            type="text"
-            v-model="newMessage"
-            @keyup.enter="sendMessage"
-            placeholder="Type a message..."
-          />
-          <!-- <button class="send-btn" @click="sendMessage">Send</button> -->
-        
-            <Buttonss   label="Send Message" color="red" :disable="isSendDisabled"  :onClick="sendMessage"   >
-              <IconSend2/>
-            </Buttonss>
-        
-        </div>
-      </div> 
+            <!-- Chat Messages -->
+            <div
+              class="chat-messages pa-4 flex-grow-1 h-75"
+              style="overflow-y: auto;"
+              >
+              <messageSection
+                v-for="(message, index) in getChatMessages()"
+                :key="index"
+                :messages="message"
+                :loguser="loggedInUser"
+                :isSelected="index === selectedMessageIndex"
+                :index="index"
+                @updateStyle="handleStyleChange"
+              />
+            </div>
 
-      <div v-else class="no-chat">
-        <p>Select a user to start chatting.</p>
-      </div>
-    </div>
-  </template>
+            <!-- Input Box -->
+            <v-row
+              class="pa-2 w-66 d-flex align-center "
+              style="position: fixed; bottom: 0; background-color: white;"
+              >
+              <!-- align="center" -->
+              <v-text-field
+                v-model="newMessage"
+                dense
+                label="Type a message..."
+                outlined
+                @keyup.enter="sendMessage"
+                class="flex-grow-1 mr-2"
+                style="max-width: 100%;"
+              />
+              <v-btn :disabled="isSendDisabled" color="primary" @click="sendMessage" style="min-width: 80px;">
+                <IconSend2 class="mr-2" /> Send
+              </v-btn>
+            </v-row>
+          </div>
+
+          <div v-else class="d-flex align-center justify-center" style="height: 100%;">
+            <p>Select a user to start chatting.</p>
+          </div>
+        </v-sheet>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
 
 
-  <style scoped>
-  .chat-app {
-    display: flex;
-    height: 100vh;
-    font-family: Arial, sans-serif;
-    width: 900px;
-  }
 
-  .logout-btn {
-    position: fixed;
-    top: 10px;
-    right: 20px;
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+<style>
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+}
 
-  .logout-btn:hover {
-    background-color: #cc0000;
-  }
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+}
+</style>
 
-  .sidebar {
-    width: 25%;
-    background: #f4f4f4;
-    padding: 20px;
-    overflow-y: auto;
-  }
+<style>
+html,
+body {
+  overflow: hidden;
+  height: 100%;
 
-  .sidebar ul {
-    list-style: none;
-    padding: 0;
-  }
+}
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+}
+</style>
 
-  .sidebar li {
-    padding: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .sidebar li.active {
-    background: #ddd;
-    font-weight: bold;
-  }
-
-  .chat-window {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    background: #fff;
-    border-left: 1px solid #ddd;
-  }
-
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-  }
-
-  .message {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    max-width: 70%;
-    word-wrap: break-word;
-    
-  }
-
-  .message.sent {
-    background: #007bff;
-    color: white;
-    align-self: flex-end;
-    margin-left: auto;
-  }
-
-  .message.received {
-    background: #e4e6eb;
-    color: black;
-    align-self: flex-start;
-  }
-
-  .chat-input {
-    display: flex;
-  }
-
-  .chat-input input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px 0 0 5px;
-  }
-
-  .send-btn {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 0 5px 5px 0;
-    cursor: pointer;
-  }
-
-  .send-btn:hover {
-    background-color: #0056b3;
-  }
-
-  .no-chat {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #aaa;
-  }
-
-  .clear-chat-btn {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-left: auto;
-  }
-
-  .clear-chat-btn:hover {
-    background-color: #cc0000;
-  }
-
-  h3 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  </style>

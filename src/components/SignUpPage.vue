@@ -4,11 +4,12 @@ import { useRouter } from 'vue-router';
 
 // Data bindings
 const name = ref('');
-const username = ref('');
+const email = ref('');
 const password = ref('');
 const userDataList = ref([]);
 const errorMessage = ref('');
 const isUserExists = ref(false); 
+const passwordVisible =ref(false)
 const router = useRouter();
 
 // Load user data from localStorage
@@ -19,9 +20,8 @@ const loadUserData = () => {
   }
 };
 
-
 const generateUniqueId = () => {
-  return Date.now(); 
+  return Date.now();
 };
 
 // Lifecycle hook
@@ -29,21 +29,25 @@ onMounted(() => {
   loadUserData();
 });
 
+// Signup handler
 const handleSignup = () => {
-  // Validate inputs
-  if (!name.value || !username.value || !password.value) {
+  if (!name.value || !email.value || !password.value) {
     errorMessage.value = 'Please fill in all fields.';
     return;
   }
 
-  const normalizedUsername = username.value.trim().toLowerCase();
-  const isUsernameTaken = userDataList.value.some(
-    (user) => user.username.toLowerCase() === normalizedUsername
-  );
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  if (!emailPattern.test(email.value.trim())) {
+    errorMessage.value = 'Please enter a valid Gmail address.';
+    return;
+  }
 
-  if (isUsernameTaken) {
-    isUserExists.value = true; 
-    errorMessage.value = 'Username already exists.';
+  const normalizedEmail = email.value.trim().toLowerCase();
+  const isEmailTaken = userDataList.value.some((user) => user.username.toLowerCase() === normalizedEmail);
+
+  if (isEmailTaken) {
+    isUserExists.value = true;
+    errorMessage.value = 'Email already exists.';
     return;
   }
 
@@ -51,59 +55,125 @@ const handleSignup = () => {
   const newUserData = {
     id: generateUniqueId(),
     name: name.value.trim(),
-    username: normalizedUsername,
+    username: normalizedEmail,
     password: password.value.trim(),
   };
 
   userDataList.value.push(newUserData);
   localStorage.setItem('userDataList', JSON.stringify(userDataList.value));
 
-  // Clear input fields and error messages
   name.value = '';
-  username.value = '';
+  email.value = '';
   password.value = '';
   errorMessage.value = '';
 
   alert('User registered successfully!');
-  router.push('/'); 
+  router.push('/');
+};
+
+// Toggle password visibility
+const togglePasswordVisibility = () => {
+  passwordVisible.value = !passwordVisible.value;
 };
 
 // Redirect to login page
-const handleLoginRedirect = () => {
-  router.push('/'); 
+const goToSignup = () => {
+  router.push('/login');
 };
 </script>
+<template>
+  <v-container class="d-flex justify-center align-center" style="height: 100vh;">
+    <v-sheet class="pa-6" elevation="4" max-width="400px">
+      <v-card class="mx-auto px-4 py-6" max-width="400">
+         <!-- Signup Form -->
+         <form @submit.prevent="handleSignup">
+
+         <!-- Name Field -->
+         <v-text-field
+            v-model="name"
+            label="Full Name"
+            :rules="[v => !!v || 'Name is required']"
+            class="mb-4"
+          ></v-text-field>
+           <!-- Email field -->
+
+           <v-text-field
+            v-model="email"
+            label="Email (Gmail)"
+            :rules="[v => !!v || 'Email is required']"
+            class="mb-4"
+            type="email"
+          ></v-text-field>
+
+            <!-- Password -->
+
+            <v-text-field 
+            v-model="password"
+            label="password"
+           :type="passwordVisible ? 'text' : 'password'"
+           :rules="[v => !!v || 'Password is required']"
+            append-inner-icon="mdi-eye"
+            @click:append-inner="togglePasswordVisibility"
+           class="mb-4"
+            >  </v-text-field>
+
+        <!-- error message -->
+
+        <div v-if="errorMessage" class="error-message mt-2">
+            <v-alert type="error" dense>{{ errorMessage }}</v-alert>
+          </div>
+
+
+          <!-- Submit Button -->
+          <v-btn type="submit" color="primary" block class="mt-4">
+            Sign Up
+          </v-btn>
+
+
+           <!-- Redirect to Login -->
+           <v-btn type="button" color="secondary" block class="mt-2" @click="goToSignup">
+            Already have an account? Login
+          </v-btn>
+         </form>
+      </v-card>
+
+    </v-sheet>
+
+  </v-container>
+</template>
+
+<!-- 
 <template>
   <div class="signup-container">
     <h1>Sign Up</h1>
     <form @submit.prevent="handleSignup">
-      <!-- Name Field -->
-      <div class="form-group">
+      < Name Field -->
+      <!-- <div class="form-group">
         <label for="name">Name</label>
         <input type="text" id="name" v-model="name" placeholder="Enter your full name" />
-      </div>
+      </div> -->
 
-      <!-- Username Field -->
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" v-model="username" placeholder="Enter your username" />
-      </div>
+      <!-- Username Field (Email) -->
+      <!-- <div class="form-group">
+        <label for="username">Username </label>
+        <input type="text" id="username" v-model="username" placeholder="Enter your Gmail address" />
+      </div> -->
 
       <!-- Password Field -->
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="password">Password</label>
         <input type="password" id="password" v-model="password" placeholder="Enter your password" />
-      </div>
+      </div> -->
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
 
       <!-- Submit Button or Login Button -->
-      <button v-if="!isUserExists" type="submit" class="signup-button">Sign Up</button>
+      <!-- <button v-if="!isUserExists" type="submit" class="signup-button">Sign Up</button>
       <button v-else type="button" @click="handleLoginRedirect" class="signup-button">Login</button>
     </form>
   </div>
-</template>
+</template>  -->
 
 <style scoped>
 .signup-container {
