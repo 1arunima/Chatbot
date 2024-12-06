@@ -9,6 +9,14 @@ const errorMessage = ref('');
 const passwordVisible =ref(false)
 const router = useRouter();
 
+// Email validation rules
+const emailRules = [
+  (v) => !!v || 'Email is required.',
+  (v) => /.+@.+\..+/.test(v) || 'Email must be valid.',
+  (v) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(v) || 'Only Gmail addresses are allowed.',
+];
+
+
 
 const togglePasswordVisibility = ()=>{
   passwordVisible.value=!passwordVisible.value
@@ -61,7 +69,7 @@ const goToSignup = () => {
           <v-text-field
             v-model="email"
             label="Email"
-            :rules="[v => !!v || 'Email is required']"
+            :rules="emailRules"
             class="mb-4"
           ></v-text-field>
 
